@@ -145,6 +145,7 @@ router.post(
       return;
     }
     try {
+      //  Quering User Against Mobile Number
       database.query(
         "SELECT * FROM users WHERE phone = " + req.body.phone,
         async (err, data) => {
@@ -165,6 +166,8 @@ router.post(
               return;
             }
 
+            // Comparing User Entered password
+
             const compare_password = await bcrypt.compareSync(
               req.body.password,
               data[0].password
@@ -176,6 +179,7 @@ router.post(
               });
               return;
             }
+            // Generating Token for User Valid for 1hour
             var token = jwt.sign(
               { id: data[0].id },
               process.env.ACCESS_SECRET_TOKEN,
@@ -212,6 +216,8 @@ router.put(
       database.query(
         "SELECT * FROM users WHERE id = " + req.id,
         (err, data) => {
+          // Checking file and removin gthe file from the server (old Files removal)
+
           if (req.file) {
             if (data[0].profile_pic !== null) {
               fs.unlink(
@@ -227,8 +233,9 @@ router.put(
             }
             const update_body = {
               profile_pic: "/uploads/profileImages/" + req?.file?.filename,
+              status: "approved"
             };
-
+            // Updating New Profile Pic
             database.query(
               "UPDATE users SET ? WHERE id = " + req.id,
               update_body,
@@ -251,7 +258,7 @@ router.put(
         }
       );
     } catch (error) {
-      console.log(error)
+      console.log(error);
       res.status(500).send({
         status: "failed",
         message: error.message,
